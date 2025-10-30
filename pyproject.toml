@@ -1,0 +1,28 @@
+[tool.poetry]
+authors = ["Salvatore D'Angelo <sasadangelo@example.com>"]
+description = "A small project for learning LLM internals and building a tokenizer from scratch"
+name = "llm-from-scratch"
+packages = [{include = "llm_from_scratch"}]
+readme = "README.md"
+version = "0.1.0"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+regex = "^2025.10.15"
+tokenizers = "^0.15.0"
+
+[tool.poetry.dev-dependencies]
+black = "^24.10.0"
+isort = "^6.0.0"
+pytest = "^7.4.0"
+
+[tool.poetry.scripts]
+llm-from-scratch = "llm_from_scratch.main:main"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.6.0"]
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
