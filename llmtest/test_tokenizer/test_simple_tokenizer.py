@@ -61,7 +61,8 @@ class TestSimpleTokenizer(unittest.TestCase):
         self.assertTrue(os.path.exists(self._save_file), f"the destination file {self._save_file} doesn't exist")
 
         # Load
-        loaded_tokenizer = SimpleTokenizer.load(self._save_file)
+        loaded_tokenizer = SimpleTokenizer()
+        loaded_tokenizer.load(self._save_file)
 
         # Decode degli ID noti
         token_ids = [910, 332, 4823, 1199, 1918, 2058, 349, 356]

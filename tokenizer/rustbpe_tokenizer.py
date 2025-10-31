@@ -30,9 +30,9 @@ SPLIT_PATTERN = (
 class RustBPETokenizer(BaseTokenizer):
     """Tokenizer is trained with rustbpe and used via tiktoken for encoding/decoding"""
 
-    # def __init__(self, enc, bos_token="<|bos|>"):
-    #     self.enc = enc
-    #     self.bos_token_id = self.encode_special(bos_token)
+    def __init__(self, bos_token="<|bos|>"):
+        self._enc = None
+        self._bos_token_id = None
 
     # -----------------------
     # Train / Load
@@ -61,21 +61,20 @@ class RustBPETokenizer(BaseTokenizer):
         enc = tiktoken.Encoding(
             name="rustbpe", pat_str=pattern, mergeable_ranks=mergeable_ranks, special_tokens=special_tokens
         )
-        self.enc = enc
-        self.bos_token_id = self.encode_special("<|bos|>")
+        self._enc = enc
+        self._bos_token_id = self.encode_special("<|bos|>")
 
     def save(self, path):
         os.makedirs(path, exist_ok=True)
         pickle_path = os.path.join(path, "tokenizer.pkl")
         with open(pickle_path, "wb") as f:
-            pickle.dump(self.enc, f)
+            pickle.dump(self._enc, f)
 
-    @classmethod
-    def load(cls, path):
+    def load(self, path):
         pickle_path = os.path.join(path, "tokenizer.pkl")
         with open(pickle_path, "rb") as f:
-            enc = pickle.load(f)
-        return cls(enc)
+            self._enc = pickle.load(f)
+            self._bos_token_id = self.encode_special("<|bos|>")
 
     # -----------------------
     # Encode / Decode
@@ -89,13 +88,13 @@ class RustBPETokenizer(BaseTokenizer):
             append_id = append if isinstance(append, int) else self.encode_special(append)
 
         if isinstance(text, str):
-            ids = self.enc.encode_ordinary(text)
+            ids = self._enc.encode_ordinary(text)
             if prepend is not None:
                 ids.insert(0, prepend_id)
             if append is not None:
                 ids.append(append_id)
         elif isinstance(text, list):
-            ids = self.enc.encode_ordinary_batch(text)
+            ids = self._enc.encode_ordinary_batch(text)
             if prepend is not None:
                 for row in ids:
                     row.insert(0, prepend_id)
@@ -107,17 +106,17 @@ class RustBPETokenizer(BaseTokenizer):
         return ids
 
     def decode(self, ids):
-        return self.enc.decode(ids)
+        return self._enc.decode(ids)
 
     def get_vocab_size(self):
-        return self.enc.n_vocab
+        return self._enc.n_vocab
 
     def get_special_tokens(self):
-        return self.enc.special_tokens_set
+        return self._enc.special_tokens_set
 
     @lru_cache(maxsize=32)
     def encode_special(self, token):
-        return self.enc.encode_single_token(token)
+        return self._enc.encode_single_token(token)
 
     def get_bos_token_id(self):
-        return self.bos_token_id
+        return self._bos_token_id

@@ -26,9 +26,8 @@ class BaseTokenizer(ABC):
         """Save tokenizer to disk"""
         pass
 
-    @classmethod
     @abstractmethod
-    def load(cls, path):
+    def load(self, path):
         """Load tokenizer from disk"""
         pass
 

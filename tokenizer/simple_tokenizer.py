@@ -11,8 +11,8 @@ UNKNOWN_TOKEN = "<|unknown|>"
 
 class SimpleTokenizer(BaseTokenizer):
     def __init__(self, vocabulary=None):
-        self.vocabulary = vocabulary if vocabulary else {}
-        self.inverse_vocabulary = {i: t for t, i in self.vocabulary.items()}
+        self._vocabulary = vocabulary if vocabulary else {}
+        self._inverse_vocabulary = {i: t for t, i in self._vocabulary.items()}
 
     def train(self, *args, **kwargs):
         """
@@ -36,39 +36,38 @@ class SimpleTokenizer(BaseTokenizer):
 
         # build vocabulary: assign incremental ids
         for idx, word in enumerate(sorted(set(words)), start=0):
-            self.vocabulary[word] = idx
+            self._vocabulary[word] = idx
 
         # add unknown token
-        if UNKNOWN_TOKEN not in self.vocabulary:
-            self.vocabulary[UNKNOWN_TOKEN] = len(self.vocabulary)
+        if UNKNOWN_TOKEN not in self._vocabulary:
+            self._vocabulary[UNKNOWN_TOKEN] = len(self._vocabulary)
 
         # inverse map
-        self.inverse_vocabulary = {i: t for t, i in self.vocabulary.items()}
+        self._inverse_vocabulary = {i: t for t, i in self._vocabulary.items()}
 
     def encode(self, text, *args, **kwargs):
         words = re.split(r'([,.:;?_!"()\']|--|\s)', text)
         words = [w.strip() for w in words if w.strip()]
-        words = [w if w in self.vocabulary else UNKNOWN_TOKEN for w in words]
-        return [self.vocabulary[w] for w in words]
+        words = [w if w in self._vocabulary else UNKNOWN_TOKEN for w in words]
+        return [self._vocabulary[w] for w in words]
 
     def decode(self, ids):
-        words = [self.inverse_vocabulary.get(i, UNKNOWN_TOKEN) for i in ids]
+        words = [self._inverse_vocabulary.get(i, UNKNOWN_TOKEN) for i in ids]
         text = " ".join(words)
         text = re.sub(r'\s+([,.?!"()\'])', r"\1", text)
         return text
 
     def save(self, path):
         with open(path, "w", encoding="utf-8") as f:
-            json.dump(self.vocabulary, f, ensure_ascii=False, indent=2)
+            json.dump(self._vocabulary, f, ensure_ascii=False, indent=2)
 
-    @classmethod
-    def load(cls, path):
+    def load(self, path):
         with open(path, "r", encoding="utf-8") as f:
-            vocab = json.load(f)
-        return cls(vocab)
+            self._vocabulary = json.load(f)
+            self._inverse_vocabulary = {i: t for t, i in self._vocabulary.items()}
 
     def get_vocab_size(self):
-        return len(self.vocabulary)
+        return len(self._vocabulary)
 
     def get_special_tokens(self):
         return [UNKNOWN_TOKEN]
