@@ -1,28 +1,69 @@
-[tool.poetry]
-authors = ["Salvatore D'Angelo <sasadangelo@example.com>"]
-description = "A small project for learning LLM internals and building a tokenizer from scratch"
+[project]
+description = "An educational LLM-from-scratch project"
 name = "llm-from-scratch"
-packages = [{include = "llm_from_scratch"}]
 readme = "README.md"
+requires-python = ">=3.10,<3.15"
 version = "0.1.0"
 
-[tool.poetry.dependencies]
-python = "^3.10"
-regex = "^2025.10.15"
-tokenizers = "^0.15.0"
+authors = [
+  {name = "Salvatore D'Angelo", email = "sasadangelo@gmail.com"},
+]
 
-[tool.poetry.dev-dependencies]
-black = "^24.10.0"
-isort = "^6.0.0"
-pytest = "^7.4.0"
+keywords = ["llm", "nlp", "tokenizer", "education"]
 
-[tool.poetry.scripts]
-llm-from-scratch = "llm_from_scratch.main:main"
+dependencies = [
+  "transformers==4.57.1",
+  "PyMuPDF==1.26.7",
+  "torch>=2.9.1",
+  "tiktoken>=0.12.0",
+]
+
+[dependency-groups]
+dev = [
+  "pytest==8.4.2",
+  "maturin==1.9.6",
+]
+
+# ---- maturin / crate Rust ----
+[tool.maturin]
+bindings = "pyo3"
+manifest-path = "src/tokenizer/rustbpe/Cargo.toml"
+module-name = "rustbpe"
+path = "rustbpe"
+
+[lib]
+crate-type = ["cdylib"]
+name = "rustbpe"
 
 [build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.6.0"]
+build-backend = "maturin"
+requires = ["maturin>=1.9.6"]
+
+[tool.isort]
+include_trailing_comma = true
+line_length = 120
+multi_line_output = 3
+profile = "black"
+skip = [".venv", "__pycache__", "build", "dist"]
 
 [tool.black]
+exclude = '''
+/(
+    \.venv
+  | build
+  | dist
+  | __pycache__
+)/
+'''
+include = '\.pyi?$'
 line-length = 120
-target-version = ['py310']
+target-version = ["py310"]
+
+[tool.flake8]
+exclude = [".venv"]
+extend-ignore = ["E203", "W503"]
+max-line-length = 120
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["llmtest"]
