@@ -45,8 +45,10 @@ uv run src/llmain.py
 ### Project Structure
 
 ```
-src/ – main Python source code
-src/tokenizer/rustbpe/ – Rust BPE tokenizer module
+src/                   – main Python source code
+src/tokenizer/         – Rust BPE tokenizer module
+src/tokenizer/rustbpe/ – Simple, HuggingFaces, and BPE Tokenizers
+src/datasets/          - Manage Book datasets
 llmtest/ – unit tests
 README.md – this file
 ```
