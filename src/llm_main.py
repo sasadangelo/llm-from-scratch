@@ -2,8 +2,6 @@
 # Copyright (c) 2025 Salvatore D'Angelo, Code4Projects
 # Licensed under the MIT License. See LICENSE.md for details.
 # -----------------------------------------------------------------------------
-# import tempfile
-# from torch.utils.data import DataLoader
 from tokenizer import SimpleTokenizer
 from datasets import BookSource
 from torch.utils.data import DataLoader
@@ -29,7 +27,7 @@ print("Special tokens:", tokenizer.get_special_tokens())
 print("-" * 60)
 
 # --- Create language modeling dataset ---
-context_length = 128
+context_length = 5
 stride = 1
 dataset = LanguageModelingDataset(text=text, tokenizer=tokenizer, context_length=context_length, stride=stride)
 
@@ -37,21 +35,17 @@ print("Number of samples in dataset:", len(dataset))
 
 # --- Create DataLoader for batch training ---
 batch_size = 4
-dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-
-# --- Example: iterate over one batch ---
-# for batch_idx, (input_ids, target_ids) in enumerate(dataloader):
-#     print("Batch", batch_idx)
-#     print("Input IDs shape:", input_ids.shape)
-#     print("Target IDs shape:", target_ids.shape)
-#     print("First input sequence:", input_ids[0])
-#     print("First target sequence:", target_ids[0])
-#     break  # just show first batch
+dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
 for batch_idx, (input_ids, target_ids) in enumerate(dataloader):
-    print("Batch", batch_idx)
+    print("Batch: ", batch_idx)
+    print()
     for i in range(input_ids.shape[0]):  # input_ids.shape[0] = batch_size
-        print(f"Sample {i} input sequence:", input_ids[i].tolist())
-        print(f"Sample {i} target sequence:", target_ids[i].tolist())
-        print("-" * 40)
-    break  # just show first batch
+        input_text = tokenizer.decode(input_ids[i].tolist())
+        target_text = tokenizer.decode(target_ids[i].tolist())
+        print(f"    Sample {i}.")
+        print("        input IDs: ", input_ids[i].tolist(), " -> target IDs: ", target_ids[i].tolist())
+        print("        input text:", input_text, " -> target text: ", target_text)
+    print("-" * 40)
+    if batch_idx == 3:
+        break  # just show first 3 batches
