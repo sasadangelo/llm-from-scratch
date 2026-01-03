@@ -96,7 +96,6 @@ class HuggingfaceTokenizer(BaseTokenizer):
             if os.path.isfile(tokenizer_path):
                 self._tokenizer = Tokenizer.from_file(tokenizer_path)
             return
-        print("44444")
         print(f"Loading pretrained tokenizer '{path_or_model_name}' (cached or remote)")
         hf_tok = AutoTokenizer.from_pretrained(path_or_model_name)
         tokenizer_json = hf_tok.backend_tokenizer.to_str()
